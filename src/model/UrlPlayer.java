@@ -150,7 +150,6 @@ public class UrlPlayer implements Runnable {
         //String query = "хлеб";
         //urlString += "&q=" + query;
         try {
-            //Document document = Jsoup.connect(urlString).timeout(10000).get();
             ParsePage("ru");
             Document document = response.parse();
             System.out.printf("Status Code: %d\n", getSitemapStatus());
