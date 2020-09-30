@@ -21,99 +21,40 @@ public class UrlPlayer implements Runnable {
     //not all station
     public void setStation(String station) {
         switch (station) {
-            case ("rr"):
-                this.station = station;
-                break;
-            case ("deep"):
-                this.station = station;
-                break;
-            case ("chil"):
-                this.station = station;
-                break;
-            case ("mix"):
-                this.station = station;
-                break;
-            case ("bighits"):
-                this.station = station;
-                break;
-            case ("tm"):
-                this.station = station;
-                break;
-            case ("gold"):
-                this.station = station;
-                break;
-            case ("rmx"):
-                this.station = station;
-                break;
-            case ("jackin"):
-                this.station = station;
-                break;
-            case ("trancehits"):
-                this.station = station;
-                break;
-            case ("ps"):
-                this.station = station;
-                break;
-            case ("mini"):
-                this.station = station;
-                break;
-            case ("drumhits"):
-                this.station = station;
-                break;
-            case ("brks"):
-                this.station = station;
-                break;
-            case ("rap"):
-                this.station = station;
-                break;
-            case ("dream"):
-                this.station = station;
-                break;
-            case ("uplift"):
-                this.station = station;
-                break;
-            case ("neurofunk"):
-                this.station = station;
-                break;
-            case ("dub"):
-                this.station = station;
-                break;
-            case ("pump"):
-                this.station = station;
-                break;
-            case ("darkside"):
-                this.station = station;
-                break;
-            case ("mmbt"):
-                this.station = station;
-                break;
-            case ("jungle"):
-                this.station = station;
-                break;
-            case ("rock"):
-                this.station = station;
-                break;
-            case ("mdl"):
-                this.station = station;
-                break;
-            default:
-                this.station = "rr";
-                break;
-
+            case ("rr") -> this.station = station;
+            case ("deep") -> this.station = station;
+            case ("chil") -> this.station = station;
+            case ("mix") -> this.station = station;
+            case ("bighits") -> this.station = station;
+            case ("tm") -> this.station = station;
+            case ("gold") -> this.station = station;
+            case ("rmx") -> this.station = station;
+            case ("jackin") -> this.station = station;
+            case ("trancehits") -> this.station = station;
+            case ("ps") -> this.station = station;
+            case ("mini") -> this.station = station;
+            case ("drumhits") -> this.station = station;
+            case ("brks") -> this.station = station;
+            case ("rap") -> this.station = station;
+            case ("dream") -> this.station = station;
+            case ("uplift") -> this.station = station;
+            case ("neurofunk") -> this.station = station;
+            case ("dub") -> this.station = station;
+            case ("pump") -> this.station = station;
+            case ("darkside") -> this.station = station;
+            case ("mmbt") -> this.station = station;
+            case ("jungle") -> this.station = station;
+            case ("rock") -> this.station = station;
+            case ("mdl") -> this.station = station;
+            default -> this.station = "rr";
         }
     }
 
     public void setBitrate(String bitrate) {
         switch (bitrate) {
-            case "320":
-                this.bitrate = bitrate;
-                break;
-            case "64":
-                this.bitrate = bitrate;
-                break;
-            default:
-                this.bitrate = "128";
-                break;
+            case "320" -> this.bitrate = bitrate;
+            case "64" -> this.bitrate = bitrate;
+            default -> this.bitrate = "128";
         }
     }
 
@@ -132,7 +73,7 @@ public class UrlPlayer implements Runnable {
             System.out.printf("Url %s не найден:", urlString);
         } catch (Exception e) {
             System.out.printf("При проигрывании с потока %s возникла следующая ошибка:", urlString);
-            System.out.printf(e.toString());
+            System.out.println(e.toString());
         }
     }
 
@@ -156,8 +97,8 @@ public class UrlPlayer implements Runnable {
             if (getSitemapStatus() == 200) {
                 Element body = document.body();
                 Element headerTitle = body.selectFirst("h1");
-                System.out.printf("Station name: %s\n", headerTitle.text());
-                System.out.printf("Title: %s\nAuthor: %s\n", body.selectFirst("div.track-title").text(), body.selectFirst("div.track-author").text());
+                //System.out.printf("Station name: %s\n", headerTitle.text());
+                //System.out.printf("Title: %s\nAuthor: %s\n", body.selectFirst("div.track-title").text(), body.selectFirst("div.track-author").text());
             }
 
         } catch (Exception e) {
@@ -178,8 +119,7 @@ public class UrlPlayer implements Runnable {
     }
 
     public int getSitemapStatus() {
-        int statusCode = response.statusCode();
-        return statusCode;
+        return response.statusCode();
     }
 
 
