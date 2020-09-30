@@ -41,8 +41,11 @@ public class MainApp {
         ResultNow resultNow = gson.fromJson(json,ResultNow.class);
         //System.out.println(resultNow instanceof ResultNow);
         //Now now = gson.fromJson(json,Now.class);
-        System.out.println(resultNow.toString());
-
+        for (Now now : resultNow.getResult()) {
+            System.out.println(now.toString());
+        }
+        //System.out.println(resultNow.toString());
+        //System.out.println(resultNow.getById(14723));
         System.exit(0);
     }
 }
