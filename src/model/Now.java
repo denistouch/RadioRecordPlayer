@@ -28,4 +28,13 @@ public class Now {
         this.track = track;
     }
 
+    @Override
+    public String toString() {
+        return "id: " + id +
+                "\nsong: " + track.getSong() +
+                "\nartist: " + track.getArtist() +
+                "\nimage_600: " + track.getImage600();
+
+    }
+
 }
