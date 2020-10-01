@@ -127,6 +127,24 @@ public class UrlPlayer implements Runnable {
         updateInfo();
     }
 
+    public void getStationList() {
+        UrlRequest request = new UrlRequest();
+        Gson gson = new Gson();
+        String json = null;
+        JsonObject jsonObject = null;
+        JsonElement jsonElement = null;
+
+        json = request.getContent("https://2019.radiorecord.ru/api/stations/");
+        jsonObject = gson.fromJson(json, JsonObject.class);
+        jsonElement = jsonObject.get("result").getAsJsonObject().get("stations");
+        json = gson.toJson(jsonElement);
+        Station[] stations = gson.fromJson(json, Station[].class);
+        for (Station station : stations) {
+            System.out.println(station.getTitle() + " : " + station.getPrefix());// get (title : prefix) list for all station
+        }
+
+    }
+
     public String getPrefix() {
         return prefix;
     }

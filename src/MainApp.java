@@ -1,22 +1,15 @@
-import model.*;
-
-import java.awt.Container;
-import java.awt.EventQueue;
-import javax.swing.GroupLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import model.UrlPlayer;
 
 public class MainApp {
     public static void main(String[] args) {
-        UrlPlayer player = new UrlPlayer("chil", "normal");
+        UrlPlayer player = new UrlPlayer("chil", "high");
+//        player.getStationList();
 
         //update info from api
         Runnable runnable = () -> {
             try {
                 while (true) {
-                    int secToWait = 1000 * 10;
+                    int secToWait = 1000 * 5;
                     int lastId = player.getTrack().getId();
                     Thread.currentThread().sleep(secToWait);
                     player.updateInfo();
@@ -26,6 +19,7 @@ public class MainApp {
                         System.out.printf("Station: %s", player.getTitle() + "\n");
                         System.out.printf("Artist: %s", player.getArtist() + "\n");
                         System.out.printf("Song: %s", player.getSong() + "\n");
+//                        System.out.printf("Share Url: %s", player.getTrack().getShareUrl() + "\n");
                         System.out.printf("ImageUrl: %s", player.getCover() + "\n");
                     }
                 }
@@ -50,6 +44,7 @@ public class MainApp {
                 System.out.printf("Station: %s", player.getTitle() + "\n");
                 System.out.printf("Artist: %s", player.getArtist() + "\n");
                 System.out.printf("Song: %s", player.getSong() + "\n");
+//                System.out.printf("Share Url: %s", player.getTrack().getShareUrl() + "\n");
                 System.out.printf("ImageUrl: %s", player.getCover() + "\n");
             } catch (Exception e) {
                 e.printStackTrace();
