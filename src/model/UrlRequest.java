@@ -8,7 +8,7 @@ import org.jsoup.nodes.Element;
 import java.io.IOException;
 
 public class UrlRequest {
-    public String getInfo(String urlString) {
+    public String getContent(String urlString) {
         try {
              return Jsoup.connect(urlString).ignoreContentType(true).execute().body();
         } catch (Exception e) {
