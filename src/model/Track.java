@@ -42,52 +42,35 @@ public class Track {
     @Expose
     private String shareUrl;
 
+
     public Integer getId() {
         return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getArtist() {
         return artist;
     }
 
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
     public String getSong() {
         return song;
     }
 
-    public void setSong(String song) {
-        this.song = song;
-    }
-
     public String getImage100() {
-        return image100;
-    }
-
-    public void setImage100(String image100) {
-        this.image100 = image100;
+        if (!image100.contains("https"))
+            return "https://2019.radiorecord.ru" + image100;
+        else return image100;
     }
 
     public String getImage200() {
-        return image200;
-    }
-
-    public void setImage200(String image200) {
-        this.image200 = image200;
+        if (!image200.contains("https"))
+            return "https://2019.radiorecord.ru" + image200;
+        else return image200;
     }
 
     public String getImage600() {
-        return image600;
-    }
-
-    public void setImage600(String image600) {
-        this.image600 = image600;
+        if (!image600.contains("https"))
+            return "https://2019.radiorecord.ru" + image600;
+        else return image600;
     }
 
     public String getListenUrl() {
@@ -138,4 +121,27 @@ public class Track {
         this.shareUrl = shareUrl;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public void setSong(String song) {
+        this.song = song;
+    }
+
+    public void setImage100(String image100) {
+        this.image100 = image100;
+    }
+
+    public void setImage200(String image200) {
+        this.image200 = image200;
+    }
+
+    public void setImage600(String image600) {
+        this.image600 = image600;
+    }
 }

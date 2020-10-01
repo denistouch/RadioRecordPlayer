@@ -16,16 +16,8 @@ public class Now {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public Track getTrack() {
         return track;
-    }
-
-    public void setTrack(Track track) {
-        this.track = track;
     }
 
     @Override
@@ -37,6 +29,11 @@ public class Now {
 
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-
+    public void setTrack(Track track) {
+        this.track = track;
+    }
 }

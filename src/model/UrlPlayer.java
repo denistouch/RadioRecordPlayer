@@ -1,71 +1,61 @@
 package model;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import javazoom.jl.player.Player;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 
 public class UrlPlayer implements Runnable {
-    private String station = "gold";
-    private String bitrate = "128";
-    Connection.Response response = null;
+    private String prefix;
+    private String stream;
+    private int id;
+    private String title;
+    private String urlString;
+    private String artist;
+    private String song;
+    private String cover;
+    private Connection.Response response = null;
 
-    //not all station
-    public void setStation(String station) {
-        switch (station) {
-            case ("rr") -> this.station = station;
-            case ("deep") -> this.station = station;
-            case ("chil") -> this.station = station;
-            case ("mix") -> this.station = station;
-            case ("bighits") -> this.station = station;
-            case ("tm") -> this.station = station;
-            case ("gold") -> this.station = station;
-            case ("rmx") -> this.station = station;
-            case ("jackin") -> this.station = station;
-            case ("trancehits") -> this.station = station;
-            case ("ps") -> this.station = station;
-            case ("mini") -> this.station = station;
-            case ("drumhits") -> this.station = station;
-            case ("brks") -> this.station = station;
-            case ("rap") -> this.station = station;
-            case ("dream") -> this.station = station;
-            case ("uplift") -> this.station = station;
-            case ("neurofunk") -> this.station = station;
-            case ("dub") -> this.station = station;
-            case ("pump") -> this.station = station;
-            case ("darkside") -> this.station = station;
-            case ("mmbt") -> this.station = station;
-            case ("jungle") -> this.station = station;
-            case ("rock") -> this.station = station;
-            case ("mdl") -> this.station = station;
-            default -> this.station = "rr";
-        }
+    public UrlPlayer(String prefix, String stream) {
+        this.prefix = prefix;
+        this.stream = stream;
+        getInfo(prefix, stream);
     }
 
-    public void setBitrate(String bitrate) {
-        switch (bitrate) {
-            case "320" -> this.bitrate = bitrate;
-            case "64" -> this.bitrate = bitrate;
-            default -> this.bitrate = "128";
-        }
+    public String getTitle() {
+        return title;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public String getSong() {
+        return song;
+    }
+
+    public String getCover() {
+        return cover;
     }
 
     @Override
     public void run() {
-        String urlString = "https://air.radiorecord.ru:805/" + station + "_" + bitrate;
         try {
+            if (this.prefix == null || this.prefix.equals(""))
+                throw new Exception("prefix not initialized");
+            if (this.stream == null || this.stream.equals(""))
+                throw new Exception("stream not initialized");
             URL url = new URL(urlString);
             InputStream fin = url.openStream();
             InputStream is = new BufferedInputStream(fin);
-
             Player player;
             player = new Player(is);
             player.play();
@@ -75,40 +65,68 @@ public class UrlPlayer implements Runnable {
             System.out.printf("При проигрывании с потока %s возникла следующая ошибка:", urlString);
             System.out.println(e.toString());
         }
+
     }
 
-    public String getStation() {
-        return station;
-    }
+    private void getInfo(String prefix, String stream) {
+        UrlRequest request = new UrlRequest();
+        Gson gson = new Gson();
+        String json = null;
+        JsonObject jsonObject = null;
+        JsonElement jsonElement = null;
 
-    public String getBitrate() {
-        return bitrate;
-    }
-
-    public void getInfo() {
-        //log("Hello World!");
-        String urlString = "https://2019.radiorecord.ru/channels/" + station + "/";
-        //String query = "хлеб";
-        //urlString += "&q=" + query;
-        try {
-            ParsePage("ru");
-            Document document = response.parse();
-            System.out.printf("Status Code: %d\n", getSitemapStatus());
-            if (getSitemapStatus() == 200) {
-                Element body = document.body();
-                Element headerTitle = body.selectFirst("h1");
-                //System.out.printf("Station name: %s\n", headerTitle.text());
-                //System.out.printf("Title: %s\nAuthor: %s\n", body.selectFirst("div.track-title").text(), body.selectFirst("div.track-author").text());
+        json = request.getInfo("https://2019.radiorecord.ru/api/stations/");
+        jsonObject = gson.fromJson(json, JsonObject.class);
+        jsonElement = jsonObject.get("result").getAsJsonObject().get("stations");
+        json = gson.toJson(jsonElement);
+        Station[] stations = gson.fromJson(json, Station[].class);
+        for (Station station : stations) {
+            System.out.println(station.getTitle() + " : " + station.getPrefix());// get (title : prefix) list for all station
+            if (station.getPrefix().equals(prefix)) {
+                this.id = station.getId();
+                this.title = station.getTitle();
+                switch (stream) {
+                    //case ("low") -> this.urlString = station.getStream64();
+                    case ("high") -> this.urlString = station.getStream320();
+                    default -> this.urlString = station.getStream128();
+                }
             }
+        }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        json = request.getInfo("https://2019.radiorecord.ru/api/stations/now/");
+        jsonObject = gson.fromJson(json, JsonObject.class);
+        jsonElement = jsonObject.get("result");
+        json = gson.toJson(jsonElement);
+        Now[] nows = gson.fromJson(json, Now[].class);
+        for (Now now : nows) {
+            if (now.getId() == this.id) {
+                Track track = now.getTrack();
+                this.artist = track.getArtist();
+                this.song = track.getSong();
+                switch (stream) {
+                    case ("low") -> this.cover = track.getImage100();
+                    case ("high") -> this.cover = track.getImage600();
+                    default -> this.cover = track.getImage200();
+                }
+            }
         }
     }
 
+    public String getPrefix() {
+        return prefix;
+    }
+    public String getStream() {
+        return stream;
+    }
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+    public void setStream(String stream) {
+        this.stream = stream;
+    }
     private void ParsePage(String langLocale) {
         try {
-            String urlString = "https://2019.radiorecord.ru/channels/" + station + "/";
+            String urlString = "https://2019.radiorecord.ru/channels/" + prefix + "/";
             response = Jsoup.connect(urlString)
                     .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.21 (KHTML, like Gecko) Chrome/19.0.1042.0 Safari/535.21")
                     .timeout(10000)
@@ -117,7 +135,6 @@ public class UrlPlayer implements Runnable {
             System.out.println("io - " + e);
         }
     }
-
     public int getSitemapStatus() {
         return response.statusCode();
     }

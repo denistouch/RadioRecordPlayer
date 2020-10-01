@@ -71,114 +71,112 @@ public class Station {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public String getPrefix() {
         return prefix;
-    }
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getShortTitle() {
-        return shortTitle;
-    }
-
-    public void setShortTitle(String shortTitle) {
-        this.shortTitle = shortTitle;
-    }
-
-    public String getIconGray() {
-        return iconGray;
-    }
-
-    public void setIconGray(String iconGray) {
-        this.iconGray = iconGray;
-    }
-
-    public String getIconFillColored() {
-        return iconFillColored;
-    }
-
-    public void setIconFillColored(String iconFillColored) {
-        this.iconFillColored = iconFillColored;
-    }
-
-    public String getIconFillWhite() {
-        return iconFillWhite;
-    }
-
-    public void setIconFillWhite(String iconFillWhite) {
-        this.iconFillWhite = iconFillWhite;
-    }
-
-    public Boolean getNew() {
-        return _new;
-    }
-
-    public void setNew(Boolean _new) {
-        this._new = _new;
-    }
-
-    public String getStream64() {
-        return stream64;
-    }
-
-    public void setStream64(String stream64) {
-        this.stream64 = stream64;
-    }
-
     public String getStream128() {
         return stream128;
-    }
-
-    public void setStream128(String stream128) {
-        this.stream128 = stream128;
     }
 
     public String getStream320() {
         return stream320;
     }
 
-    public void setStream320(String stream320) {
-        this.stream320 = stream320;
+    public String getIconGray() {
+        return iconGray;
+    }
+
+    public String getIconFillColored() {
+        return iconFillColored;
+    }
+
+    public String getIconFillWhite() {
+        return iconFillWhite;
+    }
+
+    public Boolean getNew() {
+        return _new;
+    }
+
+    public String getStream64() {
+        return stream64;
     }
 
     public List<Genre> getGenre() {
         return genre;
     }
 
-    public void setGenre(List<Genre> genre) {
-        this.genre = genre;
-    }
-
     public String getDetailPageUrl() {
         return detailPageUrl;
-    }
-
-    public void setDetailPageUrl(String detailPageUrl) {
-        this.detailPageUrl = detailPageUrl;
     }
 
     public String getShareUrl() {
         return shareUrl;
     }
 
+    public String getShortTitle() {
+        return shortTitle;
+    }
+
     public void setShareUrl(String shareUrl) {
         this.shareUrl = shareUrl;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setShortTitle(String shortTitle) {
+        this.shortTitle = shortTitle;
+    }
+
+    public void setIconGray(String iconGray) {
+        this.iconGray = iconGray;
+    }
+
+    public void setIconFillColored(String iconFillColored) {
+        this.iconFillColored = iconFillColored;
+    }
+
+    public void setIconFillWhite(String iconFillWhite) {
+        this.iconFillWhite = iconFillWhite;
+    }
+
+    public void setNew(Boolean _new) {
+        this._new = _new;
+    }
+
+    public void setStream64(String stream64) {
+        this.stream64 = stream64;
+    }
+
+    public void setStream128(String stream128) {
+        this.stream128 = stream128;
+    }
+
+    public void setStream320(String stream320) {
+        this.stream320 = stream320;
+    }
+
+    public void setGenre(List<Genre> genre) {
+        this.genre = genre;
+    }
+
+    public void setDetailPageUrl(String detailPageUrl) {
+        this.detailPageUrl = detailPageUrl;
+    }
 }
 
