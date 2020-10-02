@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-public class UrlPlayer implements Runnable {
+public class UrlPlayer implements Runnable{
     private String prefix;
     private String stream;
     private int id;
@@ -22,6 +22,11 @@ public class UrlPlayer implements Runnable {
     private Station station;
     private Track track;
     private Connection.Response response = null;
+    private Player player;
+
+    public String getUrlString() {
+        return urlString;
+    }
 
     public UrlPlayer(String prefix, String stream) {
         this.prefix = prefix;
@@ -67,16 +72,32 @@ public class UrlPlayer implements Runnable {
             URL url = new URL(urlString);
             InputStream fin = url.openStream();
             InputStream is = new BufferedInputStream(fin);
-            Player player;
             player = new Player(is);
             player.play();
-
+            Thread.yield();
         } catch (FileNotFoundException e) {
             System.out.printf("Url %s не найден:", urlString);
         } catch (Exception e) {
             System.out.printf("При проигрывании с потока %s возникла следующая ошибка:", urlString);
             System.out.println(e.toString());
         }
+    }
+
+    @Override
+    public String toString() {
+        return "\n_____NOW___PLAYING_____\n" +
+                "Station: " + station.getTitle() + "\n" +
+                "Stream: " + urlString + "\n" +
+                "TrackId: " + track.getId() + "\n" +
+                "Artist: " + track.getArtist() + "\n" +
+                "Song: " + track.getSong()+ "\n" +
+                "ShareUrl: " + track.getShareUrl()+ "\n" +
+                "ImageUrl: " + getCover();
+    }
+
+    public void stop() throws InterruptedException{
+        Thread.currentThread().interrupt();
+       player.close();
     }
 
     public void updateInfo() {
@@ -155,10 +176,12 @@ public class UrlPlayer implements Runnable {
 
     public void setPrefix(String prefix) {
         this.prefix = prefix;
+        getInfo();
     }
 
     public void setStream(String stream) {
         this.stream = stream;
+        getInfo();
     }
 
     private void ParsePage(String langLocale) {
