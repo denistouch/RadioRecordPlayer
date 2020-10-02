@@ -5,12 +5,14 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 public class MainApp {
     private static JFrame f = new JFrame();
 
     public static void main(String[] args) throws InterruptedException {
+        //некрасивый пиздец ради того чтобы рисовать обложку
         GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int width = graphicsDevice.getDisplayMode().getWidth();
         int height = graphicsDevice.getDisplayMode().getHeight();
@@ -19,7 +21,7 @@ public class MainApp {
         f.setVisible(true);
 
 
-        UrlPlayer player = new UrlPlayer("bighits", "high");
+        UrlPlayer player = new UrlPlayer("progr", "high");
         boolean test = false;
         if (test) {
             player.getStationList();
@@ -31,20 +33,27 @@ public class MainApp {
             try {
                 Thread.currentThread().sleep(1000);
                 System.out.println(player.toString());
+                f.setIconImage(ImageIO.read(new URL(player.getStation().getIconFillColored())));
+                f.setTitle(player.getSong() + " - " + player.getArtist());
                 drawCover(player.getCover());
                 while (!Thread.currentThread().isInterrupted()) {
                     int secToWait = 1000 * 5;
                     int lastId = player.getTrack().getId();
+                    String lastURL = player.getUrlString();
                     Thread.currentThread().sleep(secToWait);
                     player.updateInfo();
-                    if (player.getTrack().getId() != lastId) {
+                    if ((player.getTrack().getId() != lastId) || (!lastURL.equals(player.getUrlString()))) {
                         System.out.println(player.toString());
+                        f.setIconImage(ImageIO.read(new URL(player.getStation().getIconFillColored())));
+                        f.setTitle(player.getSong() + " - " + player.getArtist());
                         drawCover(player.getCover());
                     } else {
                         System.out.print(".");
                     }
                 }
             } catch (InterruptedException e) {
+                System.out.println(e.getLocalizedMessage());
+            } catch (Exception e) {
                 System.out.println(e.getLocalizedMessage());
             }
         };
@@ -62,8 +71,8 @@ public class MainApp {
 //        Thread testThread = new Thread(() -> {
 //            try {
 //                Thread.currentThread().sleep(10000);
-//                player.setPrefix("bighits");
-//                player.setStream("low");
+//                player.setPrefix("progr");
+//                player.setStream("high");
 //                player.stop();
 //            } catch (InterruptedException e) {
 //                System.out.println("Thread is interrupted");
@@ -85,6 +94,7 @@ public class MainApp {
             URL url = new URL(coverUrl);
             BufferedImage image = ImageIO.read(url);
             JLabel label = new JLabel(new ImageIcon(image));
+
             if (f.getContentPane().getComponentCount() != 0)
                 f.getContentPane().remove(0);
             f.getContentPane().add(label);
