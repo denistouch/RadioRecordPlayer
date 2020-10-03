@@ -47,9 +47,13 @@ public class UrlPlayer implements Runnable{
     }
 
     public String getCover() {
-        if (stream.equals("high")) {
+        if (stream.toLowerCase().equals("high")) {
+            if (track.getImage600().contains("https://2019.radiorecord.ru"))
+                return station.getIconFillColored();
             return track.getImage600();
         } else {
+            if (track.getImage200().contains("https://2019.radiorecord.ru"))
+                return station.getIconFillColored();
             return track.getImage200();
         }
     }
@@ -137,7 +141,7 @@ public class UrlPlayer implements Runnable{
                 this.station = station;
                 this.id = station.getId();
                 this.title = station.getTitle();
-                switch (stream) {
+                switch (stream.toLowerCase()) {
                     //case ("low") -> this.urlString = station.getStream64();
                     case ("high") -> this.urlString = station.getStream320();
                     default -> this.urlString = station.getStream128();
@@ -148,7 +152,7 @@ public class UrlPlayer implements Runnable{
         updateInfo();
     }
 
-    public void getStationList() {
+    public Station[] getStationList() {
         UrlRequest request = new UrlRequest();
         Gson gson = new Gson();
         String json = null;
@@ -160,9 +164,10 @@ public class UrlPlayer implements Runnable{
         jsonElement = jsonObject.get("result").getAsJsonObject().get("stations");
         json = gson.toJson(jsonElement);
         Station[] stations = gson.fromJson(json, Station[].class);
-        for (Station station : stations) {
-            System.out.println(station.getTitle() + " : " + station.getPrefix());// get (title : prefix) list for all station
-        }
+//        for (Station station : stations) {
+//            System.out.println(station.getTitle() + " : " + station.getPrefix());// get (title : prefix) list for all station
+//        }
+        return stations;
 
     }
 
