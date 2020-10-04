@@ -7,7 +7,7 @@ public class UrlRequest {
         try {
              return Jsoup.connect(urlString).ignoreContentType(true).execute().body();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getLocalizedMessage());
             return null;
         }
     }
