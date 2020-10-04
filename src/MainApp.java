@@ -5,8 +5,6 @@ import model.UrlPlayer;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -92,14 +90,8 @@ public class MainApp {
 
     private static void change(String prefix, String stream) {
         Thread testThread = new Thread(() -> {
-            try {
-                player.setPlayer(prefix, stream);
-                player.stop();
-            } catch (InterruptedException e) {
-                System.out.println(e.getLocalizedMessage());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            player.setPlayer(prefix, stream);
+            player.stop();
         });
         testThread.start();
         try {
