@@ -17,7 +17,6 @@ public class UrlPlayer implements Runnable{
     private String prefix;
     private String stream;
     private int id;
-    private String title;
     private String urlString;
     private Station station;
     private Track track;
@@ -34,8 +33,10 @@ public class UrlPlayer implements Runnable{
         getInfo();
     }
 
-    public String getTitle() {
-        return station.getTitle();
+    public void setPlayer(String prefix, String stream) {
+        this.prefix = prefix;
+        this.stream = stream;
+        getInfo();
     }
 
     public String getArtist() {
@@ -48,12 +49,12 @@ public class UrlPlayer implements Runnable{
 
     public String getCover() {
         if (stream.toLowerCase().equals("high")) {
-            if (track.getImage600().contains("https://2019.radiorecord.ru"))
-                return station.getIconFillColored();
+//            if (track.getImage600().contains("https://2019.radiorecord.ru"))
+//                return station.getIconFillColored();
             return track.getImage600();
         } else {
-            if (track.getImage200().contains("https://2019.radiorecord.ru"))
-                return station.getIconFillColored();
+//            if (track.getImage200().contains("https://2019.radiorecord.ru"))
+//                return station.getIconFillColored();
             return track.getImage200();
         }
     }
@@ -99,8 +100,7 @@ public class UrlPlayer implements Runnable{
                 "ImageUrl: " + getCover();
     }
 
-    public void stop() throws InterruptedException{
-        Thread.currentThread().interrupt();
+    public void stop() {
        player.close();
     }
 
@@ -140,11 +140,10 @@ public class UrlPlayer implements Runnable{
             if (station.getPrefix().equals(prefix)) {
                 this.station = station;
                 this.id = station.getId();
-                this.title = station.getTitle();
-                switch (stream.toLowerCase()) {
-                    //case ("low") -> this.urlString = station.getStream64();
-                    case ("high") -> this.urlString = station.getStream320();
-                    default -> this.urlString = station.getStream128();
+                if (stream.toLowerCase().equals("high")) {
+                    this.urlString = station.getStream320();
+                } else {
+                    this.urlString = station.getStream128();
                 }
             }
         }
@@ -163,11 +162,10 @@ public class UrlPlayer implements Runnable{
         jsonObject = gson.fromJson(json, JsonObject.class);
         jsonElement = jsonObject.get("result").getAsJsonObject().get("stations");
         json = gson.toJson(jsonElement);
-        Station[] stations = gson.fromJson(json, Station[].class);
 //        for (Station station : stations) {
 //            System.out.println(station.getTitle() + " : " + station.getPrefix());// get (title : prefix) list for all station
 //        }
-        return stations;
+        return gson.fromJson(json, Station[].class);
 
     }
 
