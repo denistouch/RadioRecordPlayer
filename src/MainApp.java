@@ -5,9 +5,14 @@ import model.UrlPlayer;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 public class MainApp {
@@ -22,16 +27,8 @@ public class MainApp {
     private static Runnable getInfo;
 
     public static void main(String[] args) {
-        //GUI here
-        frame = new JFrame();
-        cover = new JLabel();
-        stationJComboBox = new JComboBox<>();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setMinimumSize(new Dimension(500, 500));
-        frame.setResizable(false);
-
-        player = new UrlPlayer("rr", "high");
-
+        player = new UrlPlayer("rr", "low");
+        initGUI();
         //update info from api
         getInfo = () -> {
             try {
@@ -40,19 +37,19 @@ public class MainApp {
                     int lastId = player.getTrack().getId();
                     String lastURL = player.getUrlString();
                     Thread.currentThread().sleep(secToWait);
-                    player.updateInfo();
+                    player.getInfo();
                     if ((player.getTrack().getId() != lastId) || (!lastURL.equals(player.getUrlString()))) {
                         frame.setTitle(player.getSong() + " - " + player.getArtist());
-                        setIcon(player.getStation().getIconFillColored());
+                        setIcon();
                         drawCover(player.getCover());
                     }
                 }
             } catch (InterruptedException e) {
                 frame.setTitle(player.getSong() + " - " + player.getArtist());
-                setIcon(player.getStation().getIconFillColored());
+                setIcon();
                 drawCover(player.getCover());
             } catch (Exception e) {
-                System.out.println(e.getLocalizedMessage());
+                e.printStackTrace();
             }
         };
 
@@ -60,26 +57,9 @@ public class MainApp {
         threadPlayer = new Thread(player);
         threadPlayer.start();
 
-        //generate player
-        new Thread(() -> {
-            try {
-                Thread.currentThread().sleep(50);
-                frame.setTitle(player.getSong() + " - " + player.getArtist());
-                setIcon(player.getStation().getIconFillColored());
-                drawCover(player.getCover());
-                setStations(player.getStationList());
-                setLocation();
-                frame.setVisible(true);
-            } catch (InterruptedException e) {
-                System.out.println(e.getLocalizedMessage());
-            }
-        }).start();
-
         //start thread update info about playing music
         threadInfo = new Thread(getInfo);
         threadInfo.start();
-
-//        testAllStation();
     }
 
     private static void testAllStation() {
@@ -91,22 +71,37 @@ public class MainApp {
     private static void change(String prefix, String stream) {
         Thread testThread = new Thread(() -> {
             player.setPlayer(prefix, stream);
-            player.stop();
+            try {
+                threadPlayer.stop();
+                player.stop();
+                threadPlayer.join();
+            } catch (InterruptedException e) {
+                System.out.println(e.getLocalizedMessage());
+            }
+
         });
         testThread.start();
         try {
             testThread.join();
             threadPlayer = new Thread(player);
             threadPlayer.start();
+            threadInfo.interrupt();
         } catch (InterruptedException e) {
             System.out.println(e.getLocalizedMessage());
         }
 
     }
 
-    private static void setIcon(String iconURL) {
+    private static void setIcon() {
         try {
-            frame.setIconImage(ImageIO.read(new URL(iconURL)));
+            Image image = ImageIO.read(new URL(player.getStation().getIconFillColored()));
+            frame.setIconImage(image);
+//            BufferedImage image = ImageIO.read(new URL(player.getStation().getIconFillColored()));
+//            Graphics2D graphics2D = image.createGraphics();
+//            graphics2D.setPaint(Color.DARK_GRAY);
+//            graphics2D.fill(new Ellipse2D.Double(0,0,image.getHeight(),image.getWidth()));
+//            graphics2D.drawImage(ImageIO.read(new URL(player.getStation().getIconFillColored())),0,0,null);
+//            frame.setIconImage(image);
         } catch (MalformedURLException e) {
             System.out.println("MalformedURLException: " + e.getLocalizedMessage());
         } catch (IOException e) {
@@ -134,12 +129,27 @@ public class MainApp {
             String prefix = ((ComboItem) stationJComboBox.getSelectedItem()).getPrefix();
             if (!prefix.equals(player.getPrefix())) {
                 change(prefix, player.getStream());
-                frame.setTitle(player.getSong() + " - " + player.getArtist());
-                setIcon(player.getStation().getIconFillColored());
                 //wake up threadInfo
                 threadInfo.interrupt();
                 threadInfo = new Thread(getInfo);
                 threadInfo.start();
+            }
+        });
+        stationJComboBox.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                    System.exit(0);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
             }
         });
         frame.pack();
@@ -149,7 +159,9 @@ public class MainApp {
         GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         int width = graphicsDevice.getDisplayMode().getWidth();
         int height = graphicsDevice.getDisplayMode().getHeight();
-        frame.setLocation((width - frame.getWidth()) / 2, (height - frame.getHeight()) / 2);
+        int k = 2;
+        frame.setLocation(width - frame.getWidth() + 5, height - frame.getHeight() - 30);
+//        frame.setLocation(1105, 365);
     }
 
     private static JLabel loadImage(String coverUrl) {
@@ -165,6 +177,65 @@ public class MainApp {
             System.out.println("IOException: " + e.getLocalizedMessage());
             return null;
         }
+    }
+
+    private static void initGUI() {
+        frame = new JFrame();
+        cover = new JLabel();
+        stationJComboBox = new JComboBox<>();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setMinimumSize(new Dimension(500, 500));
+        frame.setResizable(false);
+        frame.getContentPane().addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+                    try {
+                        Desktop.getDesktop().browse(new URI(player.getTrack().getShareUrl()));
+                    } catch (Exception exception) {
+                        System.out.println(exception.getLocalizedMessage());
+                    }
+
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+
+        });
+
+        new Thread(() -> {
+            try {
+                Thread.currentThread().sleep(50);
+                frame.setTitle(player.getSong() + " - " + player.getArtist());
+                setIcon();
+                drawCover(player.getCover());
+                setStations(player.getStationList());
+                setLocation();
+                frame.setVisible(true);
+                System.out.println(player.toString());
+            } catch (InterruptedException e) {
+                System.out.println(e.getLocalizedMessage());
+            }
+        }).start();
     }
 
 }

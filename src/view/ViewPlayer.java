@@ -6,8 +6,6 @@ import model.Station;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -45,24 +43,18 @@ public class ViewPlayer {
     public void drawCover(String coverUrl) {
         frame.getContentPane().remove(cover);
         cover = loadImage(coverUrl);
-        frame.getContentPane().add(cover,BorderLayout.CENTER);
+        frame.getContentPane().add(cover, BorderLayout.CENTER);
         setLocation();
         frame.pack();
-        //добавить перемещение в центр экрана относительно ширины обложки
     }
 
     public void setStations(Station[] stations) {
         frame.getContentPane().remove(stationJComboBox);
         for (Station station : stations) {
-            stationJComboBox.addItem(new ComboItem(station.getTitle(),station.getPrefix()));
+            stationJComboBox.addItem(new ComboItem(station.getTitle(), station.getPrefix()));
         }
-        frame.add(stationJComboBox,BorderLayout.SOUTH);
-        stationJComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                prefix = ((ComboItem)stationJComboBox.getSelectedItem()).getPrefix();
-            }
-        });
+        frame.add(stationJComboBox, BorderLayout.SOUTH);
+        stationJComboBox.addActionListener(e -> prefix = ((ComboItem) stationJComboBox.getSelectedItem()).getPrefix());
         stationJComboBox.setSelectedIndex(0);
         frame.pack();
     }
