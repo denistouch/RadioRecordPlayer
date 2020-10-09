@@ -11,5 +11,6 @@
     <orderEntry type="library" name="jl1.0.1" level="project" />
     <orderEntry type="library" name="jsoup-1.13.1" level="project" />
     <orderEntry type="library" name="jmf" level="project" />
+    <orderEntry type="library" name="javafx-swt" level="project" />
   </component>
 </module>
