@@ -3,17 +3,17 @@ package model;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import javazoom.jl.player.Player;
+import javazoom.jl.player.advanced.AdvancedPlayer;
+import javazoom.jl.player.advanced.PlaybackEvent;
+import javazoom.jl.player.advanced.PlaybackListener;
 import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 
 import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-public class UrlPlayer implements Runnable{
+public class UrlPlayer implements Runnable {
     private String prefix;
     private String stream;
     private int id;
@@ -21,7 +21,14 @@ public class UrlPlayer implements Runnable{
     private Station station;
     private Track track;
     private Connection.Response response = null;
-    private Player player;
+    private AdvancedPlayer player;
+    private boolean played;
+
+    private UrlRequest request = new UrlRequest();
+    private Gson gson = new Gson();
+    private String json = null;
+    private JsonObject jsonObject = null;
+    private JsonElement jsonElement = null;
 
     public String getUrlString() {
         return urlString;
@@ -48,15 +55,11 @@ public class UrlPlayer implements Runnable{
     }
 
     public String getCover() {
-        if (stream.toLowerCase().equals("high")) {
-//            if (track.getImage600().contains("https://2019.radiorecord.ru"))
-//                return station.getIconFillColored();
-            return track.getImage600();
-        } else {
-//            if (track.getImage200().contains("https://2019.radiorecord.ru"))
-//                return station.getIconFillColored();
-            return track.getImage200();
-        }
+//        if (stream.toLowerCase().equals("high")) {
+        return track.getImage600();
+//        } else {
+//            return track.getImage200();
+//        }
     }
 
     public Station getStation() {
@@ -75,15 +78,24 @@ public class UrlPlayer implements Runnable{
             if (this.stream == null || this.stream.equals(""))
                 throw new Exception("stream not initialized");
             URL url = new URL(urlString);
+
             InputStream fin = url.openStream();
             InputStream is = new BufferedInputStream(fin);
-            player = new Player(is);
+            player = new AdvancedPlayer(is);
+            player.setPlayBackListener(new PlaybackListener() {
+                @Override
+                public void playbackFinished(PlaybackEvent event) {
+                    player.close();
+                    super.playbackFinished(event);
+                    Thread.currentThread().interrupt();
+                }
+            });
             player.play();
-            Thread.yield();
+            Thread.currentThread().interrupt();
         } catch (FileNotFoundException e) {
             System.out.printf("Url %s не найден:", urlString);
         } catch (Exception e) {
-            System.out.printf("При проигрывании с потока %s возникла следующая ошибка:", urlString);
+            System.out.printf("При проигрывании с потока %s возникла следующая ошибка:\n", urlString);
             System.out.println(e.toString());
         }
     }
@@ -95,21 +107,32 @@ public class UrlPlayer implements Runnable{
                 "Stream: " + urlString + "\n" +
                 "TrackId: " + track.getId() + "\n" +
                 "Artist: " + track.getArtist() + "\n" +
-                "Song: " + track.getSong()+ "\n" +
-                "ShareUrl: " + track.getShareUrl()+ "\n" +
+                "Song: " + track.getSong() + "\n" +
+                "ShareUrl: " + track.getShareUrl() + "\n" +
                 "ImageUrl: " + getCover();
     }
 
     public void stop() {
-       player.close();
+        player.close();
     }
 
-    public void updateInfo() {
-        UrlRequest request = new UrlRequest();
-        Gson gson = new Gson();
-        String json = null;
-        JsonObject jsonObject = null;
-        JsonElement jsonElement = null;
+    public void getInfo() {
+        json = request.getContent("https://2019.radiorecord.ru/api/stations/");
+        jsonObject = gson.fromJson(json, JsonObject.class);
+        jsonElement = jsonObject.get("result").getAsJsonObject().get("stations");
+        json = gson.toJson(jsonElement);
+        Station[] stations = gson.fromJson(json, Station[].class);
+        for (Station station : stations) {
+            if (station.getPrefix().equals(prefix)) {
+                this.station = station;
+                this.id = station.getId();
+                if (stream.toLowerCase().equals("high")) {
+                    this.urlString = station.getStream320();
+                } else {
+                    this.urlString = station.getStream128();
+                }
+            }
+        }
 
         json = request.getContent("https://2019.radiorecord.ru/api/stations/now/");
         jsonObject = gson.fromJson(json, JsonObject.class);
@@ -123,50 +146,13 @@ public class UrlPlayer implements Runnable{
         }
     }
 
-    private void getInfo() {
-        UrlRequest request = new UrlRequest();
-        Gson gson = new Gson();
-        String json = null;
-        JsonObject jsonObject = null;
-        JsonElement jsonElement = null;
-
-        json = request.getContent("https://2019.radiorecord.ru/api/stations/");
-        jsonObject = gson.fromJson(json, JsonObject.class);
-        jsonElement = jsonObject.get("result").getAsJsonObject().get("stations");
-        json = gson.toJson(jsonElement);
-        Station[] stations = gson.fromJson(json, Station[].class);
-        for (Station station : stations) {
-            //System.out.println(station.getTitle() + " : " + station.getPrefix());// get (title : prefix) list for all station
-            if (station.getPrefix().equals(prefix)) {
-                this.station = station;
-                this.id = station.getId();
-                if (stream.toLowerCase().equals("high")) {
-                    this.urlString = station.getStream320();
-                } else {
-                    this.urlString = station.getStream128();
-                }
-            }
-        }
-
-        updateInfo();
-    }
-
     public Station[] getStationList() {
-        UrlRequest request = new UrlRequest();
-        Gson gson = new Gson();
-        String json = null;
-        JsonObject jsonObject = null;
-        JsonElement jsonElement = null;
-
         json = request.getContent("https://2019.radiorecord.ru/api/stations/");
         jsonObject = gson.fromJson(json, JsonObject.class);
         jsonElement = jsonObject.get("result").getAsJsonObject().get("stations");
         json = gson.toJson(jsonElement);
-//        for (Station station : stations) {
-//            System.out.println(station.getTitle() + " : " + station.getPrefix());// get (title : prefix) list for all station
-//        }
-        return gson.fromJson(json, Station[].class);
 
+        return gson.fromJson(json, Station[].class);
     }
 
     public String getPrefix() {
@@ -175,28 +161,6 @@ public class UrlPlayer implements Runnable{
 
     public String getStream() {
         return stream;
-    }
-
-    public void setPrefix(String prefix) {
-        this.prefix = prefix;
-        getInfo();
-    }
-
-    public void setStream(String stream) {
-        this.stream = stream;
-        getInfo();
-    }
-
-    private void ParsePage(String langLocale) {
-        try {
-            String urlString = "https://2019.radiorecord.ru/channels/" + prefix + "/";
-            response = Jsoup.connect(urlString)
-                    .userAgent("Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.21 (KHTML, like Gecko) Chrome/19.0.1042.0 Safari/535.21")
-                    .timeout(10000)
-                    .execute();
-        } catch (IOException e) {
-            System.out.println("io - " + e);
-        }
     }
 
     public int getSitemapStatus() {

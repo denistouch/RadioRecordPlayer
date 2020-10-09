@@ -168,13 +168,21 @@ public class MainApp {
         try {
             URL url = new URL(coverUrl);
             BufferedImage image = ImageIO.read(url);
-            Image resultingImage = image.getScaledInstance(frame.getWidth() / 3 * 2, frame.getHeight() / 3 * 2, Image.SCALE_SMOOTH);
+            Image resultingImage = image.getScaledInstance(frame.getWidth() / 5 * 4, frame.getHeight() / 5 * 4, Image.SCALE_SMOOTH);
+            if (SystemTray.isSupported()) {
+                displayTray();
+            } else {
+                System.err.println("System tray not supported!");
+            }
             return new JLabel(new ImageIcon(resultingImage));
         } catch (MalformedURLException e) {
             System.out.println("MalformedURLException: " + e.getLocalizedMessage());
             return null;
         } catch (IOException e) {
             System.out.println("IOException: " + e.getLocalizedMessage());
+            return null;
+        } catch (Exception e) {
+            System.out.println();;
             return null;
         }
     }
@@ -232,10 +240,32 @@ public class MainApp {
                 setLocation();
                 frame.setVisible(true);
                 System.out.println(player.toString());
+
             } catch (InterruptedException e) {
+                System.out.println(e.getLocalizedMessage());
+            } catch (Exception e){
                 System.out.println(e.getLocalizedMessage());
             }
         }).start();
+    }
+
+    private static void displayTray() throws AWTException {
+        //Obtain only one instance of the SystemTray object
+        SystemTray tray = SystemTray.getSystemTray();
+
+        //If the icon is a file
+        Image image = frame.getIconImage();
+        //Alternative (if the icon is on the classpath):
+        //Image image = Toolkit.getDefaultToolkit().createImage(getClass().getResource("icon.png"));
+        PopupMenu popupMenu = new PopupMenu();
+        popupMenu.addSeparator();
+        TrayIcon trayIcon = new TrayIcon(image,player.getStation().getTitle(),popupMenu);
+        //Let the system resize the image if needed
+        trayIcon.setImageAutoSize(true);
+        //Set tooltip text for the tray icon
+        trayIcon.setToolTip(frame.getTitle());
+        tray.add(trayIcon);
+        trayIcon.displayMessage(player.getTrack().getSong(), player.getTrack().getArtist(), TrayIcon.MessageType.NONE);
     }
 
 }
