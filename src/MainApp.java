@@ -36,6 +36,7 @@ public class MainApp {
         getInfo = () -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
+//                    System.out.println(player.getUrlString());
                     int secToWait = 1000 * 5;
                     int lastId = player.getTrack().getId();
                     String lastURL = player.getUrlString();
@@ -45,6 +46,7 @@ public class MainApp {
                         new Thread(() -> frame.setTitle(player.getSong() + " - " + player.getArtist())).start();
                         new Thread(() -> setIcon()).start();
                         new Thread(() -> drawCover(player.getCover())).start();
+//                        System.out.println(player.getStation().getShortTitle());
                     }
                 }
             } catch (InterruptedException e) {
@@ -153,9 +155,12 @@ public class MainApp {
 
     private static void setStations(Station[] stations) {
         frame.getContentPane().remove(stationJComboBox);
+//        System.out.println("-------------------");
         for (Station station : stations) {
             stationJComboBox.addItem(new ComboItem(station.getTitle(), station.getPrefix()));
+//            System.out.println(station.getPrefix() + " " + station.getStream320());
         }
+//        System.out.println("-------------------");
         frame.add(stationJComboBox, BorderLayout.SOUTH);
         stationJComboBox.addActionListener(e -> {
             String prefix = ((ComboItem) stationJComboBox.getSelectedItem()).getPrefix();
@@ -175,18 +180,33 @@ public class MainApp {
             }
         });
         frame.pack();
-        stationJComboBox.setSelectedIndex(0);
+//        stationJComboBox.setSelectedIndex(0);
     }
 
     private static void setLocation() {
-        GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        int width = graphicsDevice.getDisplayMode().getWidth();
-        int height = graphicsDevice.getDisplayMode().getHeight();
-        int k = 2;
+        int length = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length;
+        GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+        GraphicsDevice device = devices[length-1];
+        int width = 0;
+        int height = 0;
+        if (GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().equals(device)) {
+            width = device.getDisplayMode().getWidth();
+            height = device.getDisplayMode().getHeight();
+        } else {
+            width = device.getDisplayMode().getWidth() + GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth();
+            height = device.getDisplayMode().getHeight();
+        }
         frame.setLocation(width - frame.getWidth() + 5, height - frame.getHeight() - 30);
-//        frame.setLocation(1105, 365);
+//        graphicsDevice.setFullScreenWindow(frame);
     }
 
+    private static GraphicsDevice getScreen() {
+        int length = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length;
+        GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+        GraphicsDevice device = devices[length-1];
+//        device.getDisplayMode()
+        return device;
+    }
 
     private static void initGUI() {
         frame = new JFrame();
@@ -269,7 +289,7 @@ public class MainApp {
 
     private static int catchMediaButton(String paramString) {
         String s1 = paramString.substring(paramString.indexOf("rawCode"));
-        String s2 = s1.substring(s1.indexOf("=") + 1,s1.indexOf(","));
+        String s2 = s1.substring(s1.indexOf("=") + 1, s1.indexOf(","));
 //        System.out.println(s2);
         return Integer.valueOf(s2);
     }
