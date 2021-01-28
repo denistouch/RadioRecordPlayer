@@ -186,27 +186,22 @@ public class MainApp {
     private static void setLocation() {
         int length = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length;
         GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
-        GraphicsDevice device = devices[length-1];
+        GraphicsDevice device = devices[length - 1];
         int width = 0;
         int height = 0;
+        int xDisplacement = + 5;
+        int yDisplacement = - 30;
         if (GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().equals(device)) {
-            width = device.getDisplayMode().getWidth();
-            height = device.getDisplayMode().getHeight();
+            width = device.getDisplayMode().getWidth() + xDisplacement;
         } else {
-            width = device.getDisplayMode().getWidth() + GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth();
-            height = device.getDisplayMode().getHeight();
+            width = device.getDisplayMode().getWidth() +
+                    GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDisplayMode().getWidth() +
+                    xDisplacement;
         }
-        frame.setLocation(width - frame.getWidth() + 5, height - frame.getHeight() - 30);
-//        graphicsDevice.setFullScreenWindow(frame);
+        height = device.getDisplayMode().getHeight() + yDisplacement;
+        frame.setLocation(width - frame.getWidth(), height - frame.getHeight());
     }
 
-    private static GraphicsDevice getScreen() {
-        int length = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices().length;
-        GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
-        GraphicsDevice device = devices[length-1];
-//        device.getDisplayMode()
-        return device;
-    }
 
     private static void initGUI() {
         frame = new JFrame();
@@ -218,30 +213,28 @@ public class MainApp {
         stationJComboBox.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-//                catchMediaButton(e.paramString());
                 if (catchMediaButton(e.paramString()) == 179)
                     playPause();
                 else if (catchMediaButton(e.paramString()) == 176)
                     System.out.println("next");
                 else if (catchMediaButton(e.paramString()) == 177)
                     System.out.println("previous");
-//                System.out.println(e.getKeyCode());
             }
         });
         frame.getContentPane().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
-                    if (e.getClickCount() == 2) {
-                        try {
-                            Desktop.getDesktop().browse(new URI(player.getTrack().getShareUrl()));
-                        } catch (Exception exception) {
-                            System.out.println(exception.getLocalizedMessage());
-                        }
-                    } else if (e.getClickCount() == 1) {
-                        //action play pause
-                        playPause();
+                    //action play pause
+                    playPause();
+
+                } else if (e.getButton() == MouseEvent.BUTTON2) {
+                    try {
+                        Desktop.getDesktop().browse(new URI(player.getTrack().getShareUrl()));
+                    } catch (Exception exception) {
+                        System.out.println(exception.getLocalizedMessage());
                     }
+
                 } else if (e.getButton() == MouseEvent.BUTTON3) {
                     //open browser search track vk
                     String url = "https://vk.com/audio?q=" + URLEncoder.encode(player.getTrack().getSong() + " " + player.getTrack().getArtist(), StandardCharsets.UTF_8);
