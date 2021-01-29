@@ -120,10 +120,12 @@ public class MainApp {
 //        new Thread(() -> {
 //
 //        }).start();
-        frame.getContentPane().removeAll();
+//        frame.getContentPane().removeAll();
+        JLabel tmp = cover;
         cover = loadImage(coverUrl);
+        frame.getContentPane().remove(tmp);
         frame.getContentPane().add(cover, BorderLayout.CENTER);
-        frame.getContentPane().add(stationJComboBox, BorderLayout.SOUTH);
+//        frame.getContentPane().add(stationJComboBox, BorderLayout.SOUTH);
         stationJComboBox.requestFocus();
         frame.pack();
 //        System.out.printf("Component count : %d\n",frame.getContentPane().getComponentCount());
@@ -180,7 +182,7 @@ public class MainApp {
             }
         });
         frame.pack();
-//        stationJComboBox.setSelectedIndex(0);
+//        stationJComboBox.setSelectedItem(stations.length-1);
     }
 
     private static void setLocation() {
@@ -246,14 +248,7 @@ public class MainApp {
                 }
             }
         });
-//        frame.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
-//                    setLocation();
-//                }
-//            }
-//        });
+
         frame.setVisible(true);
         new Thread(() -> frame.setTitle(player.getSong() + " - " + player.getArtist())).start();
         new Thread(() -> setIcon()).start();
