@@ -16,8 +16,9 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.prefs.Preferences;
 
-public class MainApp {
+public class MainApp extends JFrame{
     private static UrlPlayer player;
     private static Thread threadPlayer;
     private static Thread threadInfo;
@@ -25,11 +26,14 @@ public class MainApp {
     private static JFrame frame;
     private static JLabel cover;
     private static JComboBox stationJComboBox;
+    private static Preferences preferences;
 
     private static Runnable getInfo;
 
     public static void main(String[] args) {
-        player = new UrlPlayer("rr", "high");
+        preferences = Preferences.userRoot().node("RadioRecordPlayer");
+        String prefix = getStationOnPrefs();
+        player = new UrlPlayer(prefix, "high");
         initGUI();
 
         //update info from api runnable;
@@ -73,9 +77,18 @@ public class MainApp {
 //        }
 //    }
 
+    private static void putStationOnPrefs() {
+        preferences.put("prefix", player.getPrefix());
+    }
+
+    private static String getStationOnPrefs() {
+        return preferences.get("prefix","record");
+    }
+
     private static void change(String prefix, String stream) {
         Thread testThread = new Thread(() -> {
             player.setPlayer(prefix, stream);
+            putStationOnPrefs();
             try {
                 threadPlayer.stop();
                 player.stop();
@@ -158,12 +171,16 @@ public class MainApp {
     private static void setStations(Station[] stations) {
         frame.getContentPane().remove(stationJComboBox);
 //        System.out.println("-------------------");
+        int i = 0;
+        int index = 0;
         for (Station station : stations) {
+            if (station.getPrefix().equals(getStationOnPrefs()))
+                index = i;
             stationJComboBox.addItem(new ComboItem(station.getTitle(), station.getPrefix()));
-//            System.out.println(station.getPrefix() + " " + station.getStream320());
+            i++;
         }
-//        System.out.println("-------------------");
         frame.add(stationJComboBox, BorderLayout.SOUTH);
+        stationJComboBox.setSelectedIndex(index);
         stationJComboBox.addActionListener(e -> {
             String prefix = ((ComboItem) stationJComboBox.getSelectedItem()).getPrefix();
             if (!prefix.equals(player.getPrefix())) {
@@ -203,7 +220,6 @@ public class MainApp {
         height = device.getDisplayMode().getHeight() + yDisplacement;
         frame.setLocation(width - frame.getWidth(), height - frame.getHeight());
     }
-
 
     private static void initGUI() {
         frame = new JFrame();

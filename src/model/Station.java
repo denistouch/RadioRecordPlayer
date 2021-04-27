@@ -16,8 +16,13 @@ public class Station {
     @SerializedName("title")
     @Expose
     private String title;
+    @SerializedName("tooltip")
+    @Expose
+    private String tooltip;
+
     @SerializedName("short_title")
     @Expose
+
     private String shortTitle;
     @SerializedName("icon_gray")
     @Expose
@@ -65,6 +70,14 @@ public class Station {
                 "\nstream320: " + stream320 +
                 "\ndetailPageUrl: " + detailPageUrl +
                 "\nshareUrl: " + shareUrl;
+    }
+
+    public String toNote() {
+        return "title: " + title +
+                        "\ntooltip: " + tooltip +
+                        "\nstream64: " + stream64 +
+                        "\nstream128: " + stream128 +
+                        "\nstream320: " + stream320;
     }
 
     public Integer getId() {
